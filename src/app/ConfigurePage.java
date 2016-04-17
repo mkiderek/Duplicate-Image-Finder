@@ -12,6 +12,7 @@ import javafx.scene.control.SplitPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Created by Derek on 4/17/16.
@@ -52,7 +53,7 @@ public class ConfigurePage extends SplitPane {
         }
     }
 
-    public int start() {
+    public int start(ArrayList<String> fileFormats) {
         sliderImage.valueProperty().addListener((observable, oldValue, newValue) ->
                 textImageValue.setText(String.format("%.1f", sliderImage.getValue())));
         sliderPixel.valueProperty().addListener((observable, oldValue, newValue) ->
@@ -63,6 +64,24 @@ public class ConfigurePage extends SplitPane {
         sliderImage.setValue(Launcher.imageSimilarityPercent);
         sliderPixel.setValue(Launcher.pixelMaxDifference);
         sliderMetadata.setValue(Launcher.metadataMaxDifference);
+
+        formatBMP.setSelected(false);
+        formatGIF.setSelected(false);
+        formatJPG.setSelected(false);
+        formatPNG.setSelected(false);
+
+        if (fileFormats.contains("bmp")) {
+            formatBMP.setSelected(true);
+        }
+        if (fileFormats.contains("gif")) {
+            formatGIF.setSelected(true);
+        }
+        if (fileFormats.contains("jpg")) {
+            formatJPG.setSelected(true);
+        }
+        if (fileFormats.contains("png")) {
+            formatPNG.setSelected(true);
+        }
 
         Scene scene = new Scene(this);
         Stage stage = new Stage();

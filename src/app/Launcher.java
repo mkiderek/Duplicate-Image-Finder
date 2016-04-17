@@ -85,7 +85,7 @@ public class Launcher extends Application {
     @FXML
     private void configure(ActionEvent event) {
         ConfigurePage configurePage = new ConfigurePage();
-        int retval = configurePage.start();
+        int retval = configurePage.start(fileFormats);
         if (retval == 0) {
             imageSimilarityPercent = configurePage.sliderImage.getValue();
             pixelMaxDifference = configurePage.sliderPixel.getValue();
