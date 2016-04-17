@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 public class Launcher extends Application {
 
-    private final String TEMPLATE_CONTENT =
+    private String TEMPLATE_CONTENT =
             "Used to compare images. Higher->Higher similarity. Range:0.0-1.0\n"
             + imageSimilarityPercent + "\n"
             + "Used to compare pixels. Lower->Higher similarity. Range:0.0-1.0\n"
