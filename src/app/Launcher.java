@@ -17,13 +17,13 @@ import java.util.ArrayList;
 
 public class Launcher extends Application {
 
-    private String TEMPLATE_CONTENT =
+    private final String TEMPLATE_CONTENT =
             "Used to compare images. Higher->Higher similarity. Range:0.0-1.0\n"
-            + imageSimilarityPercent + "\n"
+            + "0.8\n"
             + "Used to compare pixels. Lower->Higher similarity. Range:0.0-1.0\n"
-            + pixelMaxDifference + "\n"
+            + "0.1\n"
             +"Used to compare Metadata. Lower->Higher similarity. Range:0.0-1.0\n"
-            + metadataMaxDifference + "\n";
+            + "0.5\n";
 
     static double imageSimilarityPercent = 0.8;
     static double pixelMaxDifference = 0.1;
@@ -80,8 +80,31 @@ public class Launcher extends Application {
         primaryStage.setScene(scene);
 //        primaryStage.setTitle("Duplicate Image Checker");
         primaryStage.setResizable(false);
-        primaryStage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, event -> createTemplateFile(null));
+        primaryStage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, event -> saveConfigFile());
         primaryStage.show();
+    }
+
+    private void saveConfigFile() {
+        try {
+            File templateFile = new File("config");
+            BufferedWriter bw =
+                    new BufferedWriter(
+                            new OutputStreamWriter(
+                                    new FileOutputStream(templateFile)));
+            String content =
+                    "Used to compare images. Higher->Higher similarity. Range:0.0-1.0\n"
+                            + imageSimilarityPercent + "\n"
+                            + "Used to compare pixels. Lower->Higher similarity. Range:0.0-1.0\n"
+                            + pixelMaxDifference + "\n"
+                            +"Used to compare Metadata. Lower->Higher similarity. Range:0.0-1.0\n"
+                            + metadataMaxDifference + "\n";
+            bw.write(content);
+            bw.close();
+        } catch (IOException e) {
+            // OMG!!!!
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
     }
 
     @FXML
