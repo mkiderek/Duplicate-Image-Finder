@@ -12,6 +12,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public class Launcher extends Application {
 
@@ -26,6 +27,7 @@ public class Launcher extends Application {
     static double imageSimilarityPercent = 0.8;
     static double pixelMaxDifference = 0.1;
     static double metadataMaxDifference = 0.5;
+    static ArrayList<String> fileFormats;
     private Checker checker = null;
 
     public static void main(String[] args) {
@@ -34,6 +36,12 @@ public class Launcher extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        fileFormats = new ArrayList<>();
+        fileFormats.add("bmp");
+        fileFormats.add("gif");
+        fileFormats.add("jpg");
+        fileFormats.add("jpeg");
+        fileFormats.add("png");
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("LauncherPage.fxml"));
 
@@ -82,6 +90,20 @@ public class Launcher extends Application {
             imageSimilarityPercent = configurePage.sliderImage.getValue();
             pixelMaxDifference = configurePage.sliderPixel.getValue();
             metadataMaxDifference = configurePage.sliderMetadata.getValue();
+            fileFormats.clear();
+            if (configurePage.formatBMP.isSelected()) {
+                fileFormats.add("bmp");
+            }
+            if (configurePage.formatGIF.isSelected()) {
+                fileFormats.add("gif");
+            }
+            if (configurePage.formatJPG.isSelected()) {
+                fileFormats.add("jpg");
+                fileFormats.add("jpeg");
+            }
+            if (configurePage.formatPNG.isSelected()) {
+                fileFormats.add("png");
+            }
         }
     }
 
@@ -89,7 +111,7 @@ public class Launcher extends Application {
     private void launch(ActionEvent event) {
         if (checker == null) {
             checker = new Checker();
-            checker.start();
+            checker.start(fileFormats);
             checker = null;
         } else {
             Alert alert = new Alert(Alert.AlertType.WARNING);

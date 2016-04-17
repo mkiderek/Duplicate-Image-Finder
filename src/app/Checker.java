@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Checker {
-    public void start() {
+    public void start(ArrayList<String> fileFormats) {
         File oldOutDir = (Paths.get("output").toFile());
         File prevFiles[] = oldOutDir.listFiles();
         if (prevFiles != null) {
@@ -45,14 +45,23 @@ public class Checker {
             return;
         }
 
+//        File[] images = dir.listFiles(file -> {
+//            try {
+//                String ext = file.getName().substring(file.getName().lastIndexOf('.') + 1);
+//                return ext.equalsIgnoreCase("bmp")
+//                        || ext.equalsIgnoreCase("gif")
+//                        || ext.equalsIgnoreCase("jpeg")
+//                        || ext.equalsIgnoreCase("jpg")
+//                        || ext.equalsIgnoreCase("png");
+//            } catch (ArrayIndexOutOfBoundsException e) {
+//                return false;
+//            }
+//        });
+
         File[] images = dir.listFiles(file -> {
             try {
-                String ext = file.getName().substring(file.getName().lastIndexOf('.') + 1);
-                return ext.equalsIgnoreCase("bmp")
-                        || ext.equalsIgnoreCase("gif")
-                        || ext.equalsIgnoreCase("jpeg")
-                        || ext.equalsIgnoreCase("jpg")
-                        || ext.equalsIgnoreCase("png");
+                String ext = file.getName().substring(file.getName().lastIndexOf('.') + 1).toLowerCase();
+                return fileFormats.contains(ext);
             } catch (ArrayIndexOutOfBoundsException e) {
                 return false;
             }
