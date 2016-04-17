@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -18,11 +19,11 @@ public class Launcher extends Application {
 
     private final String TEMPLATE_CONTENT =
             "Used to compare images. Higher->Higher similarity. Range:0.0-1.0\n"
-            + "0.8\n"
+            + imageSimilarityPercent + "\n"
             + "Used to compare pixels. Lower->Higher similarity. Range:0.0-1.0\n"
-            + "0.1\n"
+            + pixelMaxDifference + "\n"
             +"Used to compare Metadata. Lower->Higher similarity. Range:0.0-1.0\n"
-            + "0.5\n";
+            + metadataMaxDifference + "\n";
 
     static double imageSimilarityPercent = 0.8;
     static double pixelMaxDifference = 0.1;
@@ -79,6 +80,7 @@ public class Launcher extends Application {
         primaryStage.setScene(scene);
 //        primaryStage.setTitle("Duplicate Image Checker");
         primaryStage.setResizable(false);
+        primaryStage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, event -> createTemplateFile(null));
         primaryStage.show();
     }
 
