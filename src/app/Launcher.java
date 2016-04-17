@@ -75,6 +75,17 @@ public class Launcher extends Application {
     }
 
     @FXML
+    private void configure(ActionEvent event) {
+        ConfigurePage configurePage = new ConfigurePage();
+        int retval = configurePage.start();
+        if (retval == 0) {
+            imageSimilarityPercent = configurePage.sliderImage.getValue();
+            pixelMaxDifference = configurePage.sliderPixel.getValue();
+            metadataMaxDifference = configurePage.sliderMetadata.getValue();
+        }
+    }
+
+    @FXML
     private void launch(ActionEvent event) {
         if (checker == null) {
             checker = new Checker();
