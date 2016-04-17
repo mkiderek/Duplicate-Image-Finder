@@ -60,6 +60,10 @@ public class ConfigurePage extends SplitPane {
         sliderMetadata.valueProperty().addListener((observable, oldValue, newValue) ->
                 textMetadataValue.setText(String.format("%.1f", sliderMetadata.getValue())));
 
+        sliderImage.setValue(Launcher.imageSimilarityPercent);
+        sliderPixel.setValue(Launcher.pixelMaxDifference);
+        sliderMetadata.setValue(Launcher.metadataMaxDifference);
+
         Scene scene = new Scene(this);
         Stage stage = new Stage();
         stage.setScene(scene);
