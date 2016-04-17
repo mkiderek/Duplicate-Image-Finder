@@ -141,7 +141,7 @@ public class Checker {
                                 if (leftTag.getTagName().equals(rightTag.getTagName())
                                         && !leftTag.getDescription().equals(rightTag.getDescription())) {
                                     differentTags += 2;}}}}}}
-            return differentTags < totalTags / 2;
+            return differentTags < totalTags * Launcher.metadataMaxDifference;
         } catch (ImageProcessingException e) {
             e.printStackTrace();
             System.err.println(e.getMessage());

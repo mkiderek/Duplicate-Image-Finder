@@ -19,10 +19,13 @@ public class Launcher extends Application {
             "Used to compare images. Higher->Higher similarity. Range:0.0-1.0\n"
             + "0.8\n"
             + "Used to compare pixels. Lower->Higher similarity. Range:0.0-1.0\n"
-            +"0.1\n";
+            + "0.1\n"
+            +"Used to compare Metadata. Lower->Higher similarity. Range:0.0-1.0\n"
+            + "0.5\n";
 
     static double imageSimilarityPercent = 0.8;
     static double pixelMaxDifference = 0.1;
+    static double metadataMaxDifference = 0.5;
     private Checker checker = null;
 
     public static void main(String[] args) {
@@ -44,18 +47,23 @@ public class Launcher extends Application {
             imageSimilarityPercent = Double.parseDouble(br.readLine());
             br.readLine();
             pixelMaxDifference = Double.parseDouble(br.readLine());
+            br.readLine();
+            metadataMaxDifference = Double.parseDouble(br.readLine());
         } catch (FileNotFoundException e) {
             // no config file, use default value
             imageSimilarityPercent = 0.8;
             pixelMaxDifference = 0.1;
+            metadataMaxDifference = 0.5;
         } catch (NullPointerException e) {
             System.err.println("Insufficient Information");
             imageSimilarityPercent = 0.8;
             pixelMaxDifference = 0.1;
+            metadataMaxDifference = 0.5;
         } catch (NumberFormatException e) {
             System.err.println("Wrong Information");
             imageSimilarityPercent = 0.8;
             pixelMaxDifference = 0.1;
+            metadataMaxDifference = 0.5;
         }
 
         AnchorPane pane = (AnchorPane) loader.load();
