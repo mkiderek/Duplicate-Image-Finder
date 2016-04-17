@@ -19,14 +19,14 @@ public class Launcher extends Application {
 
     private final String TEMPLATE_CONTENT =
             "Used to compare images. Higher->Higher similarity. Range:0.0-1.0\n"
-            + "0.8\n"
+            + "0.9\n"
             + "Used to compare pixels. Lower->Higher similarity. Range:0.0-1.0\n"
-            + "0.1\n"
+            + "0.2\n"
             +"Used to compare Metadata. Lower->Higher similarity. Range:0.0-1.0\n"
             + "0.5\n";
 
-    static double imageSimilarityPercent = 0.8;
-    static double pixelMaxDifference = 0.1;
+    static double imageSimilarityPercent = 0.9;
+    static double pixelMaxDifference = 0.2;
     static double metadataMaxDifference = 0.5;
     static ArrayList<String> fileFormats;
     private Checker checker = null;
