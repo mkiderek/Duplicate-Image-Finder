@@ -72,18 +72,32 @@
             </padding>
         </GridPane>
     </bottom>
-    <left>
-        <VBox fx:id="leftImageDetails" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-            </padding>
-        </VBox>
-    </left>
-    <right>
-        <VBox fx:id="rightImageDetails" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-            </padding>
-        </VBox>
-    </right>
+   <left>
+      <ScrollPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <content>
+              <VBox fx:id="leftImageDetails" prefHeight="200.0" prefWidth="200.0">
+                  <padding>
+                      <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                  </padding>
+              </VBox>
+         </content>
+         <padding>
+            <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+         </padding>
+      </ScrollPane>
+   </left>
+   <right>
+      <ScrollPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <content>
+              <VBox fx:id="rightImageDetails" prefHeight="200.0" prefWidth="200.0">
+                  <padding>
+                      <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                  </padding>
+              </VBox>
+         </content>
+         <padding>
+            <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+         </padding>
+      </ScrollPane>
+   </right>
 </fx:root>

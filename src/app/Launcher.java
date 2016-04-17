@@ -16,10 +16,10 @@ import java.io.*;
 public class Launcher extends Application {
 
     private final String TEMPLATE_CONTENT =
-            "Used to decide whether two images are the same. higher=higher similarity. Range:0.0-1.0\n"
-            + "0.8\n"
-            + "Used to compare pixels. lower=higher similarity. Range:0.0-1.0\n"
-            +"0.1\n";
+            "Used to decide whether two images are the same. higher=higher similarity. Range:metadata-extractor.metadata-extractor-1.metadata-extractor\n"
+            + "metadata-extractor.8\n"
+            + "Used to compare pixels. lower=higher similarity. Range:metadata-extractor.metadata-extractor-1.metadata-extractor\n"
+            +"metadata-extractor.1\n";
 
     static double imageSimilarityPercent = 0.8;
     static double pixelMaxDifference = 0.1;

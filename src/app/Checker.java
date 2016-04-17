@@ -1,5 +1,10 @@
 package app;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.Tag;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
@@ -61,6 +66,11 @@ public class Checker {
                 File leftImageFile = imageFiles.get(i);
                 File rightImageFile = imageFiles.get(j);
                 if (!leftImageFile.equals(rightImageFile)) {
+
+                    if (!hasSimilarMetadata(leftImageFile, rightImageFile)) {
+                        continue;
+                    }
+
                     if (isSimilarImage(leftImageFile, rightImageFile)) {
                         ChooseImageController chooseImageController = new ChooseImageController();
                         int ret = chooseImageController.start(leftImageFile, rightImageFile);
@@ -99,6 +109,48 @@ public class Checker {
                 System.out.println("IOException");
             }
         });
+    }
+
+    private boolean hasSimilarMetadata(File leftImageFile, File rightImageFile) {
+        try {
+            Metadata leftImageMetadata = ImageMetadataReader.readMetadata(leftImageFile);
+            Metadata rightImageMetadata = ImageMetadataReader.readMetadata(rightImageFile);
+
+            int differentTags = 0;
+            int totalTags = 0;
+            for (Directory directory : leftImageMetadata.getDirectories()) {
+                try {
+                    totalTags += directory.getTagCount();
+                } catch (NullPointerException e) {
+                    break;
+                }
+            }
+            for (Directory directory : rightImageMetadata.getDirectories()) {
+                try {
+                    totalTags += directory.getTagCount();
+                } catch (NullPointerException e) {
+                    break;
+                }
+            }
+
+            for (Directory leftDirectory : leftImageMetadata.getDirectories()) {
+                for (Directory rightDirectory : rightImageMetadata.getDirectories()) {
+                    if (leftDirectory.equals(rightDirectory)) {
+                        for (Tag leftTag : leftDirectory.getTags()) {
+                            for (Tag rightTag : rightDirectory.getTags()) {
+                                if (leftTag.getTagName().equals(rightTag.getTagName())
+                                        && !leftTag.getDescription().equals(rightTag.getDescription())) {
+                                    differentTags += 2;}}}}}}
+            return differentTags < totalTags / 2;
+        } catch (ImageProcessingException e) {
+            e.printStackTrace();
+            System.err.println(e.getMessage());
+            return true;
+        } catch (IOException e) {
+            System.err.println("IOException");
+            e.printStackTrace();
+            return true;
+        }
     }
 
     private boolean isSimilarImage(File leftFile, File rightFile) {
