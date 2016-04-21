@@ -20,8 +20,33 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Checker {
+public class Checker implements Runnable {
+
+    private class PixelComparator implements Runnable {
+        final int beginRow;
+        final int endRow;
+        final Image image;
+        int count;
+
+        PixelComparator(int begin, int end, Image image) {
+            this.beginRow = begin;
+            this.endRow = end;
+            this.image = image;
+            count = 0;
+        }
+
+        @Override
+        public void run() {
+
+        }
+    }
+
+    protected int numOfDuplicatePixels;
+
     public void start() {
+        numOfDuplicatePixels = 0;
+
+        // clear old output
         File oldOutDir = (Paths.get("output").toFile());
         File prevFiles[] = oldOutDir.listFiles();
         if (prevFiles != null) {
@@ -30,6 +55,7 @@ public class Checker {
             }
         }
 
+        // select folder of images to compare
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Please Select a Directory");
         File dir = directoryChooser.showDialog(null);
@@ -109,6 +135,11 @@ public class Checker {
                 System.out.println("IOException");
             }
         });
+    }
+
+    @Override
+    public void run() {
+
     }
 
     private boolean hasSimilarMetadata(File leftImageFile, File rightImageFile) {
