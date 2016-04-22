@@ -20,32 +20,19 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Checker implements Runnable {
+public class Checker {
 
-    private class PixelComparator implements Runnable {
-        final int beginRow;
-        final int endRow;
-        final Image image;
-        int count;
+    // for the whole Checker
+    private ArrayList<File> imageFiles;
+    private ArrayList<File> removeList;
 
-        PixelComparator(int begin, int end, Image image) {
-            this.beginRow = begin;
-            this.endRow = end;
-            this.image = image;
-            count = 0;
-        }
+    // for comparing current pair of images
+    private Boolean end;
+    private Double dupPixelCount;
+    private Double difPixelCount;
+    private Double totalPixels;
 
-        @Override
-        public void run() {
-
-        }
-    }
-
-    protected int numOfDuplicatePixels;
-
-    public void start() {
-        numOfDuplicatePixels = 0;
-
+    public Checker(ArrayList<String> fileFormats) {
         // clear old output
         File oldOutDir = (Paths.get("output").toFile());
         File prevFiles[] = oldOutDir.listFiles();
@@ -71,52 +58,58 @@ public class Checker implements Runnable {
             return;
         }
 
-        File[] images = dir.listFiles(file -> {
-            try {
-                String ext = file.getName().substring(file.getName().lastIndexOf('.') + 1);
-                return ext.equalsIgnoreCase("bmp")
-                        || ext.equalsIgnoreCase("gif")
-                        || ext.equalsIgnoreCase("jpeg")
-                        || ext.equalsIgnoreCase("jpg")
-                        || ext.equalsIgnoreCase("png");
-            } catch (ArrayIndexOutOfBoundsException e) {
-                return false;
-            }
-        });
+        imageFiles = new ArrayList<>(Arrays.asList(dir.listFiles(file -> {
+            String ext = file.getName().substring(file.getName().lastIndexOf('.') + 1).toLowerCase();
+            return fileFormats.contains(ext);
+        })));
 
-        ArrayList<File> removeList = new ArrayList<>();
+        removeList = new ArrayList<>();
+    }
 
-        ArrayList<File> imageFiles = new ArrayList<>(Arrays.asList(images));
+    public void start() {
+
         for (int i = 0; i < imageFiles.size(); i++) {
             for (int j = i + 1; j < imageFiles.size(); j++) {
                 File leftImageFile = imageFiles.get(i);
                 File rightImageFile = imageFiles.get(j);
-                if (!leftImageFile.equals(rightImageFile)) {
 
+                System.out.println("Current File name(L,R): " + leftImageFile.getName() + "  ,  " + rightImageFile.getName());
+
+                if (!leftImageFile.equals(rightImageFile)) {
                     if (!hasSimilarMetadata(leftImageFile, rightImageFile)) {
                         continue;
                     }
 
+                    end = false;
+                    dupPixelCount = 0.0;
+                    difPixelCount = 0.0;
+                    totalPixels = 0.0;
+
+                    long pixelStartTime = System.nanoTime();
+
                     if (isSimilarImage(leftImageFile, rightImageFile)) {
+
+                        System.out.println("Time taken by pixel comparator: " + (System.nanoTime() - pixelStartTime) / 1000000 + "ms");
+
                         ChooseImageController chooseImageController = new ChooseImageController();
                         int ret = chooseImageController.start(leftImageFile, rightImageFile);
                         if (ret == 0) {
-//                            System.out.println("keep left");
                             removeList.add(rightImageFile);
                         } else if (ret == 1) {
-//                            System.out.println("keep right");
                             removeList.add(leftImageFile);
-                        } else if (ret == 2) {
-//                            System.out.println("keep both");
                         } else if (ret == -1) {
                             System.out.println("ERROR");
                         } else if (ret == -2) {
                             System.out.println("IOException");
-                        } else {
+                        } else if (ret != 2) {
                             System.out.println("OMG! What happened!");
                         }
+                    } else {
+                        System.out.println("Time taken by pixel comparator: " + (System.nanoTime() - pixelStartTime) / 1000000 + "ms");
                     }
                 }
+
+                System.out.println();
             }
         }
 
@@ -128,18 +121,10 @@ public class Checker implements Runnable {
                 Files.createDirectories(outDir);
                 Files.copy(file.toPath(), outDir.resolve(file.getName()), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
-                // OMG!!!!
-                e.printStackTrace();
-                System.out.println("File: " + "output/" + file.getName());
                 System.out.println(e.getMessage());
-                System.out.println("IOException");
+                e.printStackTrace();
             }
         });
-    }
-
-    @Override
-    public void run() {
-
     }
 
     private boolean hasSimilarMetadata(File leftImageFile, File rightImageFile) {
@@ -171,14 +156,20 @@ public class Checker implements Runnable {
                             for (Tag rightTag : rightDirectory.getTags()) {
                                 if (leftTag.getTagName().equals(rightTag.getTagName())
                                         && !leftTag.getDescription().equals(rightTag.getDescription())) {
-                                    differentTags += 2;}}}}}}
+                                    differentTags += 2;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             return differentTags < totalTags * Launcher.metadataMaxDifference;
         } catch (ImageProcessingException e) {
+            System.out.println(e.getMessage());
             e.printStackTrace();
-            System.err.println(e.getMessage());
             return true;
         } catch (IOException e) {
-            System.err.println("IOException");
+            System.out.println(e.getMessage());
             e.printStackTrace();
             return true;
         }
@@ -217,12 +208,87 @@ public class Checker implements Runnable {
                         , false);
             }
 
-            double samePixel = 0;
-            double totalPixels = lci.getWidth() * lci.getHeight();
+            totalPixels = lci.getWidth() * lci.getHeight();
+
+            int availableProcessors = Runtime.getRuntime().availableProcessors();
+
+            int proportion = (int) Math.ceil(lci.getHeight() / availableProcessors);
+
+            Thread[] threads = new Thread[availableProcessors];
+            PixelComparator[] pixelComparators = new PixelComparator[availableProcessors];
+
+            // compare pixel rows in different thread
+            for (int i = 0; i < availableProcessors - 1; i++) {
+                pixelComparators[i] =
+                        new PixelComparator(i * proportion, proportion + i * proportion, lci, rci);
+                threads[i] = new Thread(pixelComparators[i]);
+                threads[i].start();
+            }
+            pixelComparators[availableProcessors - 1] =
+                    new PixelComparator((availableProcessors - 1) * proportion, (int) lci.getHeight(), lci, rci);
+            threads[availableProcessors - 1] = new Thread(pixelComparators[availableProcessors - 1]);
+            threads[availableProcessors - 1].start();
+
+            for (int i = 0; i < threads.length; i++) {
+
+                if (threads[i].isAlive()) {
+                    i--;
+
+                    // if enough different pixels has been found, stop immediately and return false
+                    if (difPixelCount / totalPixels > (1.0 - Launcher.imageSimilarityPercent)) {
+                        end = true;
+                        for (Thread thread : threads) {
+                            try {
+                                thread.join();
+                            } catch (InterruptedException e) {
+                                System.out.println(e.getMessage());
+                                e.printStackTrace();
+                            }
+                        }
+                        return false;
+                    }
+                }
+            }
+
+            return dupPixelCount / totalPixels >= Launcher.imageSimilarityPercent;
+
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private synchronized void incrementDupPixel() {
+        dupPixelCount++;
+    }
+
+    private synchronized void incrementDifPixel() {
+        difPixelCount++;
+    }
+
+    private class PixelComparator implements Runnable {
+        final int beginRow;
+        final int endRow;
+        final Image lci;
+        final Image rci;
+
+        PixelComparator(int begin, int end, Image lci, Image rci) {
+            this.beginRow = begin;
+            this.endRow = end;
+            this.lci = lci;
+            this.rci = rci;
+        }
+
+        @Override
+        public void run() {
             PixelReader lpr = lci.getPixelReader();
             PixelReader rpr = rci.getPixelReader();
             for (int i = 0; i < lci.getWidth(); i++) {
-                for (int j = 0; j < lci.getHeight(); j++) {
+                for (int j = beginRow; j < endRow; j++) {
+                    if (end) {
+                        return;
+                    }
                     Double lr = lpr.getColor(i, j).getRed();
                     Double lg = lpr.getColor(i, j).getGreen();
                     Double lb = lpr.getColor(i, j).getBlue();
@@ -232,17 +298,14 @@ public class Checker implements Runnable {
                     Double rb = rpr.getColor(i, j).getBlue();
                     if (Math.abs(lr - rr) < Launcher.pixelMaxDifference
                             && Math.abs(lg - rg) < Launcher.pixelMaxDifference
-                            && Math.abs(lb - rb) < Launcher.pixelMaxDifference) {
-                        samePixel++;
+                            && Math.abs(lb - rb) < Launcher.pixelMaxDifference)
+                    {
+                        incrementDupPixel();
+                    } else {
+                        incrementDifPixel();
                     }
                 }
             }
-
-            return samePixel / totalPixels > Launcher.imageSimilarityPercent;
-
-        } catch (IOException e) {
-            // OMG!!!!
-            return false;
         }
     }
 }

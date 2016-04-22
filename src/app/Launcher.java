@@ -60,18 +60,18 @@ public class Launcher extends Application {
             metadataMaxDifference = Double.parseDouble(br.readLine());
         } catch (FileNotFoundException e) {
             // no config file, use default value
-            imageSimilarityPercent = 0.8;
-            pixelMaxDifference = 0.1;
+            imageSimilarityPercent = 0.9;
+            pixelMaxDifference = 0.2;
             metadataMaxDifference = 0.5;
         } catch (NullPointerException e) {
             System.err.println("Insufficient Information");
-            imageSimilarityPercent = 0.8;
-            pixelMaxDifference = 0.1;
+            imageSimilarityPercent = 0.9;
+            pixelMaxDifference = 0.2;
             metadataMaxDifference = 0.5;
         } catch (NumberFormatException e) {
             System.err.println("Wrong Information");
-            imageSimilarityPercent = 0.8;
-            pixelMaxDifference = 0.1;
+            imageSimilarityPercent = 0.9;
+            pixelMaxDifference = 0.2;
             metadataMaxDifference = 0.5;
         }
 
@@ -135,8 +135,8 @@ public class Launcher extends Application {
     @FXML
     private void launch(ActionEvent event) {
         if (checker == null) {
-            checker = new Checker();
-            checker.start(fileFormats);
+            checker = new Checker(fileFormats);
+            checker.start();
             checker = null;
         } else {
             Alert alert = new Alert(Alert.AlertType.WARNING);
